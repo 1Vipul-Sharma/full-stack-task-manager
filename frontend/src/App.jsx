@@ -1,10 +1,13 @@
 import { useState } from "react";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [refresh, setRefresh] = useState(false);
   const reloadTasks = () => setRefresh((prev) => !prev);
+  console.log(`reload`, refresh);
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-8">
@@ -13,6 +16,7 @@ function App() {
         <TaskForm onTaskAdded={reloadTasks} />
         <TaskList refresh={refresh} />
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

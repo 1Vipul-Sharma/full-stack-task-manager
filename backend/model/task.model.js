@@ -10,7 +10,6 @@ const taskSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ["High", "Medium", "Low"],
-    default: "High",
   },
   completed: {
     type: Boolean,

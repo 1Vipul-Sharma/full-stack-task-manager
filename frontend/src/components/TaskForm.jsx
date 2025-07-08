@@ -1,42 +1,71 @@
 import { useState } from "react";
-import axios from "../api/axios"; // use axios instance or adjust path
+import axios from "axios"; // adjust this path if needed
+import { toast } from "react-toastify";
 
 const TaskForm = ({ onTaskAdded }) => {
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("");
 
   const handleAdd = async () => {
-    if (!title.trim()) return;
+    if (!title.trim() || !priority) {
+      toast.warn("Please enter a task title and select a priority.");
+      return;
+    }
 
     try {
       const res = await axios.post("http://localhost:5000/api/tasks", {
         title,
         completed: false,
-        priority: "Low", // you can make this dynamic later
+        priority,
       });
 
       if (res.data.success) {
-        setTitle(""); // clear input
-        onTaskAdded(); // ask parent to refetch list
+        setTitle("");
+        setPriority("");
+        onTaskAdded();
+        toast.success("Task added successfully!");
       } else {
+        toast.error(res.data.message || "Task creation failed.");
         console.error("Task creation failed:", res.data.message);
       }
     } catch (error) {
-      console.error("Error adding task:", error.message);
+      if (error.response) {
+        toast.error(error.response.data.message || "Something went wrong!");
+        console.error("Backend error:", error.response.data);
+      } else if (error.request) {
+        toast.error("No response from server.");
+        console.error("No server response:", error.request);
+      } else {
+        toast.error("An unexpected error occurred.");
+        console.error("Unexpected error:", error.message);
+      }
     }
   };
 
   return (
-    <div className="flex gap-2 mb-4">
+    <div className="flex flex-col md:flex-row gap-2 w-full mb-4">
       <input
         type="text"
         placeholder="Add a task..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="flex-1 border px-3 py-2 rounded"
+        className="w-full md:flex-1 border border-gray-300 px-3 py-2 rounded"
       />
+
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value)}
+        className="w-full md:w-24 border border-gray-300 px-3 py-2 rounded"
+      >
+        <option value="">Select priority</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+
       <button
         onClick={handleAdd}
-        className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded"
+        className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded"
       >
         Add Task
       </button>
